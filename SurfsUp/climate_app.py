@@ -113,13 +113,24 @@ def tobs():
 @app.route("/api/v1.0/<start>")
 def tstats(start):
     session = Session(engine)
-    year_temp_data = session.query(Measurement.date, Measurement.station, Measurement.tobs)\
+    year_temp_stats = session.query(min(Measurement.tobs), max(Measurement.tobs), avg(Measurement.tobs))\
         .filter(Measurement.date >= year_ago)\
         .filter(Measurement.station == "USC00519281")\
         .all()
-    data_sum = {"Maximum": f"{year_temp_data[0][1]} F", "Minimum": f"{year_temp_data[0][0]} F", "Average": f"{year_temp_data[0][2]} F"}
+    data_sum = {"Maximum": f"{year_temp_stats[0][1]} F", "Minimum": f"{year_temp_stats[0][0]} F", "Average": f"{year_temp_stats[0][2]} F"}
+
+    session.close()
+    return jsonify(data_sum)
 
 @app.route("/api/v1.0/<start>/<end>")
+def tstats_st_end(start,end):
+    st_end_stats = session.query(Measurement.date, Measurement.station, Measurement.tobs)\
+        .filter(Measurement.date >= year_ago)\
+        .filter(Measurement.station == "USC00519281")\
+        .all()
+    st_end_sum = {"Maximum": f"{st_end_stats[0][1]} F", "Minimum": f"{st_end_stats[0][0]} F", "Average": f"{st_end_stats[0][2]} F"}
 
+    session.close()
+    return jsonify(st_end_stats)
 if __name__ == '__main__':
     app.run(debug=True)
